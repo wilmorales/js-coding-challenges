@@ -1,4 +1,4 @@
-# Find the Longest Word
+# Find the Longest Word Challenge
 
 Write a function that finds the longest word in a given string.
 
