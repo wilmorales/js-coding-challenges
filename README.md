@@ -1,4 +1,4 @@
-# Array Chunking
+# Array Chunking Challenge
 
 Write a function that splits an array into chunks of a specified size.
 
