@@ -1,11 +1,11 @@
-# Array Chunking
+# Deep Clone Object
 
-Write a function to flatten a nested array. You must account for varying levels of nesting.
+Write a function to perform a deep clone of a given object. This function should create a copy of the object, including nested objects and arrays, that does not share references with the
 
-Example
+## Example
 
 ```
-flattenArray([1, [2, [3, 4], [[5]]]]); // [1, 2, 3, 4, 5]
+deepClone({ a: 1, b: { c: 2 } }); // { a: 1, b: { c: 2 } }
 ```
 
 # Evaluation
@@ -14,86 +14,126 @@ flattenArray([1, [2, [3, 4], [[5]]]]); // [1, 2, 3, 4, 5]
 
 A junior developer might use a straightforward recursive approach without considering all edge cases or optimizing for performance.
 
-- Correctness: The solution correctly flattens nested arrays.
+- Correctness: The solution correctly performs a deep clone for basic objects and arrays.
 - Code Readability and Style: The code is readable and follows basic JavaScript conventions.
-- Efficiency: The recursive approach works but might not be optimized for deeply nested arrays.
-- Use of Language Features: Uses basic JavaScript features like recursion, Array.isArray, and concat.
+- Efficiency: The recursive approach works but might not be optimized for large or complex objects.
+- Use of Language Features: Uses basic JavaScript features like recursion, typeof, and Array.isArray.
 - Error Handling: No explicit error handling or edge case consideration.
-- Code Structure: Simple and straightforward, but may struggle with very large or deeply nested arrays.
+- Code Structure: Simple and straightforward, but may struggle with very large or complex objects, circular references, or special object types like Date, Map, Set, etc.
 
 ```
-function flattenArray(arr) {
-  let result = [];
+function deepClone(obj) {
+  if (obj === null || typeof obj !== 'object') {
+    return obj;
+  }
 
-  for (let element of arr) {
-    if (Array.isArray(element)) {
-      result = result.concat(flattenArray(element));
-    } else {
-      result.push(element);
+  const clone = Array.isArray(obj) ? [] : {};
+
+  for (let key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      clone[key] = deepClone(obj[key]);
     }
   }
 
-  return result;
+  return clone;
 }
 
 // Basic test case
-console.log(flattenArray([1, [2, [3, 4], [[5]]]])); // [1, 2, 3, 4, 5]
+const original = { a: 1, b: { c: 2 } };
+const clone = deepClone(original);
+console.log(clone); // { a: 1, b: { c: 2 } }
+console.log(clone.b === original.b); // false
 
 ```
 
 ## Senior Developer Considerations
 
-A senior developer would enhance the function by considering performance optimizations, adding error handling, and using modern JavaScript features. Additionally, they might add documentation and tests.
+A senior developer would enhance the function by considering performance optimizations, adding error handling, and handling special cases like circular references and special object types. Additionally, they might add documentation and tests.
 
-- Correctness: The solution correctly flattens nested arrays and handles a variety of inputs.
+- Correctness: The solution correctly performs a deep clone for objects, arrays, dates, maps, sets, and handles circular references.
 - Code Readability and Style: The code is readable, well-documented, and follows good JavaScript practices.
-- Efficiency: The use of a stack and iterative approach avoids the potential pitfalls of deep recursion (stack overflow), making it more efficient for deeply nested arrays.
-- Use of Language Features: Uses modern JavaScript features like the spread operator and array methods effectively.
-- Error Handling: Includes type checking and throws meaningful errors for invalid input.
-- Code Structure: Modular and reusable, with clear separation of concerns and robust error handling.
+- Efficiency: The use of a WeakMap to track seen objects avoids infinite loops with circular references and optimizes performance.
+- Use of Language Features: Uses modern JavaScript features and object type checks effectively.
+- Error Handling: Includes type checking and handles various object types and circular references.
+- Code Structure: Modular and reusable, with clear separation of concerns and robust handling of different data types.
 
 Here’s how a senior developer might enhance the solution:
 
 ```
 
 /**
- * Flattens a nested array.
+ * Performs a deep clone of a given object.
  *
- * @param {Array} arr - The input nested array.
- * @returns {Array} - The flattened array.
- * @throws {TypeError} - Throws an error if the input is not an array.
+ * @param {any} obj - The object to be cloned.
+ * @param {WeakMap} [seen=new WeakMap()] - A WeakMap to handle circular references.
+ * @returns {any} - The deep cloned object.
+ * @throws {TypeError} - Throws an error if the input is not an object.
  */
-function flattenArray(arr) {
-  if (!Array.isArray(arr)) {
-    throw new TypeError('Input must be an array');
+function deepClone(obj, seen = new WeakMap()) {
+  if (obj === null || typeof obj !== 'object') {
+    return obj;
   }
 
-  const result = [];
-  const stack = [...arr];
+  if (seen.has(obj)) {
+    return seen.get(obj);
+  }
 
-  while (stack.length) {
-    const next = stack.pop();
+  let clone;
 
-    if (Array.isArray(next)) {
-      stack.push(...next);
-    } else {
-      result.push(next);
+  if (Array.isArray(obj)) {
+    clone = [];
+    seen.set(obj, clone);
+    for (let i = 0; i < obj.length; i++) {
+      clone[i] = deepClone(obj[i], seen);
+    }
+  } else if (obj instanceof Date) {
+    clone = new Date(obj);
+  } else if (obj instanceof Map) {
+    clone = new Map();
+    seen.set(obj, clone);
+    obj.forEach((value, key) => {
+      clone.set(key, deepClone(value, seen));
+    });
+  } else if (obj instanceof Set) {
+    clone = new Set();
+    seen.set(obj, clone);
+    obj.forEach(value => {
+      clone.add(deepClone(value, seen));
+    });
+  } else {
+    clone = {};
+    seen.set(obj, clone);
+    for (let key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        clone[key] = deepClone(obj[key], seen);
+      }
     }
   }
 
-  return result.reverse();
+  return clone;
 }
 
 // Test cases
-console.log(flattenArray([1, [2, [3, 4], [[5]]]])); // [1, 2, 3, 4, 5]
-console.log(flattenArray([])); // []
-console.log(flattenArray([1, 2, 3])); // [1, 2, 3]
-console.log(flattenArray([1, [2, [3, 4, [5, [6, 7]]]]])); // [1, 2, 3, 4, 5, 6, 7]
-try {
-  console.log(flattenArray(123)); // Throws error
-} catch (e) {
-  console.error(e.message); // "Input must be an array"
-}
+const original = {
+  a: 1,
+  b: { c: 2 },
+  d: new Date(),
+  e: new Map([['key1', 'value1']]),
+  f: new Set([1, 2, 3]),
+  g: [1, [2, 3]]
+};
 
+const clone = deepClone(original);
+console.log(clone); // Deeply cloned object
+console.log(clone.b === original.b); // false
+console.log(clone.d === original.d); // false
+console.log(clone.e.get('key1') === original.e.get('key1')); // true
+console.log(clone.f.has(1)); // true
+console.log(clone.g[1] === original.g[1]); // false
+try {
+  console.log(deepClone(123)); // 123
+} catch (e) {
+  console.error(e.message); // Should not throw an error
+}
 
 ```
