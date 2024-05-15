@@ -1,4 +1,4 @@
-# Array Chunking
+# Flatten Array Challenge
 
 Write a function to flatten a nested array. You must account for varying levels of nesting.
 
