@@ -10,6 +10,31 @@ chunkArray([1, 2, 3, 4, 5, 6, 7], 3) // [[1, 2, 3], [4, 5, 6], [7]]
 
 # Evaluation
 
+## Junior Developer Perspective
+
+A junior developer is more likely to:
+
+- Focus on getting the correct output without considering all edge cases.
+- Use simpler and more straightforward constructs without extensive error handling or optimization.
+- Potentially overlook edge cases or input validation.
+
+```
+function chunkArray(array, size) {
+  const chunked = [];
+  let index = 0;
+  while (index < array.length) {
+    chunked.push(array.slice(index, index + size));
+    index += size;
+  }
+  return chunked;
+}
+
+// Basic test case
+console.log(chunkArray([1, 2, 3, 4, 5, 6, 7], 3)); // [[1, 2, 3], [4, 5, 6], [7]]
+
+
+```
+
 ## Senior Developer Considerations
 
 A senior developer might go beyond these basic solutions and consider additional aspects such as:
@@ -42,29 +67,9 @@ function chunkArray(array, size) {
   return chunked;
 }
 
-```
-
-## Junior Developer Perspective
-
-A junior developer is more likely to:
-
-- Focus on getting the correct output without considering all edge cases.
-- Use simpler and more straightforward constructs without extensive error handling or optimization.
-- Potentially overlook edge cases or input validation.
-
-```
-function chunkArray(array, size) {
-  const chunked = [];
-  let index = 0;
-  while (index < array.length) {
-    chunked.push(array.slice(index, index + size));
-    index += size;
-  }
-  return chunked;
-}
-
-// Basic test case
+// Test cases
 console.log(chunkArray([1, 2, 3, 4, 5, 6, 7], 3)); // [[1, 2, 3], [4, 5, 6], [7]]
-
+console.log(chunkArray([], 3)); // []
+console.log(chunkArray([1, 2, 3], 0)); // Throws Error: Size must be a positive number
 
 ```
